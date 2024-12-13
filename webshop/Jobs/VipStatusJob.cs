@@ -35,7 +35,7 @@ namespace webshop.Jobs
         private bool ShouldBecomeVip(Customer customer)
         {
             // Custom logic to determine if a customer should become VIP
-            return customer.TotalOrders > 50; // Example condition
+            return customer.TotalOrders > 50; 
         }
     }
 }

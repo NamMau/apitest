@@ -5,7 +5,7 @@ using webshop.Models;
 public class OrderDetail
 {
     [Key]
-    public int OrderDetailId { get; set; } // Ensure you have a primary key defined
+    public int OrderDetailId { get; set; } 
 
     [ForeignKey("OrderId")]
     public int OrderId { get; set; }

@@ -69,7 +69,7 @@ static async Task TestApiCall()
         //add secret key header
         client.DefaultRequestHeaders.Add("secret_key", "123456");
 
-        //replace with your actual API url
+        //API url
         var response = await client.GetAsync("http://localhost:5095/api/v1/orders");
 
         //check response status and read content
