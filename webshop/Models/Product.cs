@@ -4,7 +4,7 @@
     {
         public int ProductID { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public Decimal? Price { get; set; }
         public int Stock { get; set; }
         public DateTime CreateAt { get; set; }

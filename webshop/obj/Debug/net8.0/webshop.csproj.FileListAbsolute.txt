@@ -170,3 +170,4 @@ D:\1651\code\apitest\webshop\obj\Debug\net8.0\refint\webshop.dll
 D:\1651\code\apitest\webshop\obj\Debug\net8.0\webshop.pdb
 D:\1651\code\apitest\webshop\obj\Debug\net8.0\webshop.genruntimeconfig.cache
 D:\1651\code\apitest\webshop\obj\Debug\net8.0\ref\webshop.dll
+D:\1651\code\apitest\webshop\obj\Debug\net8.0\webshop.sourcelink.json

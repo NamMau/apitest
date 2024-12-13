@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Quartz;
 using webshop.Data;
 using webshop.MiddleWare;
@@ -10,7 +12,36 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddLogging();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+
+    // Add the secret_key header to Swagger
+    c.AddSecurityDefinition("secret_key", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "secret_key",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "ApiKeyScheme"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "secret_key"
+                },
+                Scheme = "oauth2",
+                Name = "secret_key",
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
+});
 
 // Add database context
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -22,20 +53,20 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile)); 
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Add Quartz for job scheduling
-//builder.Services.AddQuartz(q =>
-//{
-//    q.UseMicrosoftDependencyInjectionJobFactory();
-//    var jobKey = new JobKey("VipStatusJob");
-//    q.AddJob<VipStatusJob>(opts => opts.WithIdentity(jobKey));
-//    q.AddTrigger(opts => opts
-//        .ForJob(jobKey)
-//        .WithIdentity("VipStatusJob-trigger")
-//        .WithCronSchedule("0 0 * * * ?")); // Every hour
-//});
-//builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+// Add Quartz for job scheduling (if needed)
+// builder.Services.AddQuartz(q =>
+// {
+//     q.UseMicrosoftDependencyInjectionJobFactory();
+//     var jobKey = new JobKey("VipStatusJob");
+//     q.AddJob<VipStatusJob>(opts => opts.WithIdentity(jobKey));
+//     q.AddTrigger(opts => opts
+//         .ForJob(jobKey)
+//         .WithIdentity("VipStatusJob-trigger")
+//         .WithCronSchedule("0 0 * * * ?")); // Every hour
+// });
+// builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 
@@ -47,10 +78,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseMiddleware<SecretKeyMiddleware>(); // Secret key middleware
 app.UseAuthorization();
 
-app.UseMiddleware<SecretKeyMiddleware>(); // Secret key middleware
+app.MapControllers();
 
 using (var connection = new Microsoft.Data.SqlClient.SqlConnection("Data Source=WINDOWS\\SQLEXPRESS;Initial Catalog=apitestweb;Integrated Security=True;Trust Server Certificate=True"))
 {
@@ -59,20 +90,19 @@ using (var connection = new Microsoft.Data.SqlClient.SqlConnection("Data Source=
     int result = (int)command.ExecuteScalar();
     Console.WriteLine(result);
 }
-app.MapControllers();
 
-//Function to test API call
+// Function to test API call
 static async Task TestApiCall()
 {
     using (var client = new HttpClient())
     {
-        //add secret key header
+        // Add secret key header
         client.DefaultRequestHeaders.Add("secret_key", "123456");
 
-        //API url
+        // API url
         var response = await client.GetAsync("http://localhost:5095/api/v1/orders");
 
-        //check response status and read content
+        // Check response status and read content
         if (response.IsSuccessStatusCode)
         {
             var data = await response.Content.ReadAsStringAsync();

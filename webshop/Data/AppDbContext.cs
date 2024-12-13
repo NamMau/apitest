@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Server.IIS;
+using Microsoft.EntityFrameworkCore;
 using webshop.Models;
 
 namespace webshop.Data
@@ -30,10 +33,10 @@ namespace webshop.Data
             modelBuilder.Entity<OrderDetail>().HasKey(od => od.OrderDetailId);
 
             // Define relationships
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Customer)
-                .WithMany() // No navigation property in Customer
-                .HasForeignKey(o => o.CustomerID);
+            //modelBuilder.Entity<Order>()
+            //    .HasOne(o => o.Customer)
+            //    .WithMany() // No navigation property in Customer
+            //    .HasForeignKey(o => o.CustomerID);
 
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.ShippingProvider)
